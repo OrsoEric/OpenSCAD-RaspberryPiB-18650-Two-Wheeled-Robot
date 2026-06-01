@@ -1,6 +1,7 @@
 //SHAPE
 include <libs/shape_ellypse.scad>
 include <libs/shape_rounded_rectangle.scad>
+include <libs/shape_flange.scad>
 
 //Model of the Rasperry Pi 3 and 5
 include <libs/raspberry_pi_3.scad>
@@ -24,13 +25,13 @@ include <raspicam_holder.scad>
 module industrious_resonance
 (
 	//SHOW ELEMENTS
-	i_x_show_rpi = true,
-	i_x_show_servo = true,
-	i_x_show_battery_tab = true,
-	i_x_show_battery = true,
-	i_x_show_pivot = true,
-	i_x_show_raspicam_holder = true,
-	i_x_show_raspicam = true,
+	i_x_show_rpi = false,
+	i_x_show_servo = false,
+	i_x_show_battery_tab = false,
+	i_x_show_battery = false,
+	i_x_show_pivot = false,
+	i_x_show_raspicam_holder = false,
+	i_x_show_raspicam = false,
 	//Thickness of the base
 	i_t_base = 3.5,
 	i_e_precision = 0.01,
@@ -64,6 +65,8 @@ module industrious_resonance
 	d_pivot_sphere = 40.0;
 	//Clearance under the base
 	h_pivot_clearance = d_pivot_sphere / 2 - ho_pivot;
+	//Height from base to top of pivot
+	h_pivot_top = 32.7;
 
 	echo("Pivot ball clearance: ",h_pivot_clearance);
 
@@ -281,6 +284,28 @@ module industrious_resonance
 				i_x_raspicam = i_x_show_raspicam,
 			);
 
+			//---------------------------------------------------------------------
+			//	FLANGE
+			//---------------------------------------------------------------------
+			// meant for a power switch
+
+			translate
+			([
+				lo_pivot-4/2,
+				0,
+				t_base+h_pivot_top
+			])
+			//Bring it up and facing X
+			rotate([90,0,90])
+			shape_flange
+			(
+				i_h_flange = 8,
+				i_w_flange = 12,
+				i_d_hole = 6.0+0.8,
+				i_t_flange = 4,
+				i_e_precision = 0.01,
+			);
+
 		}
 		//Extrude
 		union()
@@ -360,7 +385,6 @@ module industrious_resonance
 			//	RASPICAM BOLTS
 			//---------------------------------------------------------------------
 
-			if (i_x_show_raspicam_holder == true)
 			for (wo=[g_wo_raspicam_flap_hole/2,-g_wo_raspicam_flap_hole/2])
 			{
 				translate
@@ -413,6 +437,18 @@ module industrious_resonance
 		sphere(d=gd_ball,$fn=100);
 	}
 
+	//---------------------------------------------------------------------
+	//	RASPICAM HOLDER PRINT
+	//---------------------------------------------------------------------
+
+	translate([c_r_base_major+50,0,0])
+	rpi_holder
+	(
+		i_r_screw_holes = 3+0.5,
+		i_wo_flap_hole = g_wo_raspicam_flap_hole,
+		i_x_flaps = true,
+		i_x_raspicam = i_x_show_raspicam,
+	);
 
 
 }
