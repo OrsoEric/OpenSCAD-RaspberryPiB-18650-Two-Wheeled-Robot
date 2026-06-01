@@ -2,7 +2,6 @@
 include <libs/shape_ellypse.scad>
 include <libs/shape_rounded_rectangle.scad>
 
-
 //Model of the Rasperry Pi 3 and 5
 include <libs/raspberry_pi_3.scad>
 include <libs/sbc_support.scad>
@@ -16,6 +15,11 @@ include <libs/ball_holder.scad>
 include <battery-18650.scad>
 include <battery-18650-holder-1s1p.scad>
 
+include <raspicam_holder.scad>
+
+
+
+
 
 module industrious_resonance
 (
@@ -25,6 +29,8 @@ module industrious_resonance
 	i_x_show_battery_tab = true,
 	i_x_show_battery = true,
 	i_x_show_pivot = true,
+	i_x_show_raspicam_holder = true,
+	i_x_show_raspicam = true,
 	//Thickness of the base
 	i_t_base = 3.5,
 	i_e_precision = 0.01,
@@ -103,6 +109,16 @@ module industrious_resonance
 	lo_battery = -80;
 	wo_battery = 38;
 
+
+	//------------------------------------------------------------------
+	//	RASPCIAM
+	//------------------------------------------------------------------
+
+	l_raspicam_bolt = 40;
+	d_raspicam_bolt = 3.0+0.5;
+
+	g_wo_raspicam_flap_hole = 34.0;
+
 	//------------------------------------------------------------------
 	//	GEOMETRY
 	//------------------------------------------------------------------
@@ -133,11 +149,11 @@ module industrious_resonance
 
 			translate
 			([
-				lo_battery,
+				0*lo_battery,
 				wo_battery,
 				t_base
 			])
-			rotate([0,0,-0])
+			rotate([0,0,-180])
 			holder_18650_1s1p
 			(
 				ix_show_battery = i_x_show_battery,
@@ -240,6 +256,31 @@ module industrious_resonance
 				i_x_show_wheel = i_x_show_servo
 			);
 
+			//---------------------------------------------------------------------
+			//	RASPICAM
+			//---------------------------------------------------------------------
+
+			if (i_x_show_raspicam_holder == true)
+			//Move forward
+			translate
+			([
+				c_r_base_major-4,
+				0,
+				gn_rpicam_height/2+t_base+0.5
+			])
+			//Turn upward
+			rotate([0,90,0])
+			//Invert cable direction
+			rotate([0,0,180])
+			color("gray")
+			rpi_holder
+			(
+				i_r_screw_holes = 3+0.5,
+				i_wo_flap_hole = g_wo_raspicam_flap_hole,
+				i_x_flaps = true,
+				i_x_raspicam = i_x_show_raspicam,
+			);
+
 		}
 		//Extrude
 		union()
@@ -286,7 +327,6 @@ module industrious_resonance
 				i_n_error = i_e_precision
 			);
 
-
 			//---------------------------------------------------------------------
 			//	PIVOT HOLE
 			//---------------------------------------------------------------------
@@ -315,6 +355,29 @@ module industrious_resonance
 				i_li_sbc = gli_pi3_hole,
 				i_wi_sbc = gwi_pi3_hole,
 			);
+
+			//---------------------------------------------------------------------
+			//	RASPICAM BOLTS
+			//---------------------------------------------------------------------
+
+			if (i_x_show_raspicam_holder == true)
+			for (wo=[g_wo_raspicam_flap_hole/2,-g_wo_raspicam_flap_hole/2])
+			{
+				translate
+				([
+					c_r_base_major-l_raspicam_bolt,
+					wo,
+					t_base+gn_rpicam_height/2+0.5
+				])
+				rotate([0,90,0])
+				shape_cylinder
+				(
+					i_h = l_raspicam_bolt,
+					i_d = d_raspicam_bolt,
+					i_e = 0.01
+				);
+			}
+
 		}
 	}
 
@@ -350,17 +413,7 @@ module industrious_resonance
 		sphere(d=gd_ball,$fn=100);
 	}
 
-	/*
-	//RPI Support
-	translate([5,-20,t_base+30])
-	rpi_support_pillars
-	(
-		i_d_top = 6,
-		i_d_bot = 10,
-		i_h_pillar = 20,
-		i_h_vertical = 4
-	);
-	*/
+
 
 }
 
