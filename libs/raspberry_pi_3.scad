@@ -25,7 +25,6 @@ gw_pi3_usb = 31.0;
 //Make positive of a vertical raspbnerry pi
 module raspberry_pi_3
 (
-
 )
 {
 	difference()

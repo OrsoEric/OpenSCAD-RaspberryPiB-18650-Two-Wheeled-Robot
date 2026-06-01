@@ -5,7 +5,7 @@ include <libs/shape_rounded_rectangle.scad>
 
 //Model of the Rasperry Pi 3 and 5
 include <libs/raspberry_pi_3.scad>
-//include <libs/rpi_support.scad>
+include <libs/sbc_support.scad>
 //Model of the servo
 include <libs/hs422-servo.scad>
 include <libs/servo_holder.scad>
@@ -22,7 +22,8 @@ module industrious_resonance
 	//SHOW ELEMENTS
 	i_x_show_rpi = true,
 	i_x_show_servo = true,
-	i_x_show_battery = false,
+	i_x_show_battery_tab = true,
+	i_x_show_battery = true,
 	i_x_show_pivot = true,
 	//Thickness of the base
 	i_t_base = 3.5,
@@ -83,11 +84,24 @@ module industrious_resonance
 	h_floor_servo = d_wheel / 2 - 10 - t_base - h_pivot_clearance;
 
 	//------------------------------------------------------------------
+	//	SBC
+	//------------------------------------------------------------------
+
+	//SBC offset position
+	lo_sbc = 82;
+	wo_sbc = 0;
+	to_sbc = 33;
+
+	//Holes for SBC bolts
+	d_sbc_bolt = 2.5 + 0.6;
+	d_sbc_bolt_nut = 5.0 + 0.6;
+
+	//------------------------------------------------------------------
 	//	BATTERY
 	//------------------------------------------------------------------
 
-	l_battery = -80;
-	w_battery = 38;
+	lo_battery = -80;
+	wo_battery = 38;
 
 	//------------------------------------------------------------------
 	//	GEOMETRY
@@ -119,21 +133,29 @@ module industrious_resonance
 
 			translate
 			([
-				l_battery,
-				w_battery,
+				lo_battery,
+				wo_battery,
 				t_base
 			])
 			rotate([0,0,-0])
-			holder_18650_1s1p( ix_show_battery = false, ix_show_tab = true );
+			holder_18650_1s1p
+			(
+				ix_show_battery = i_x_show_battery,
+				ix_show_tab = i_x_show_battery_tab
+			);
 
 			translate
 			([
-				l_battery,
-				-w_battery,
+				lo_battery,
+				-wo_battery,
 				t_base
 			])
 			rotate([0,0,-0])
-			holder_18650_1s1p( ix_show_battery = false, ix_show_tab = true );
+			holder_18650_1s1p
+			(
+				ix_show_battery = i_x_show_battery,
+				ix_show_tab = i_x_show_battery_tab
+			);
 
 			//---------------------------------------------------------------------
 			//	SBC
@@ -141,81 +163,87 @@ module industrious_resonance
 
 			if (i_x_show_rpi == true)
 			{
-				translate([65,30,t_base+40])
+				translate
+				([
+					lo_sbc,
+					wo_sbc+gw_pi3/2,
+					t_base+to_sbc
+				])
 				rotate([0,0,180])
 				raspberry_pi_3();
 			}
 
 			//---------------------------------------------------------------------
-			//	BATTERY
+			//	SBC PILLARS
 			//---------------------------------------------------------------------
 
-			if (i_x_show_battery == true)
-			{
+			translate
+			([
+				lo_sbc-glm_pi3_hole,
+				0,
+				0
+			])
+			sbc_support_pillars
+			(
+				i_d_top = 6,
+				i_d_bot = 8,
+				i_h_pillar = t_base+to_sbc,
+				i_h_vertical = 4,
+				//Interaxis between holes
+				i_li_sbc = gli_pi3_hole,
+				i_wi_sbc = gwi_pi3_hole
+			);
 
-				for (n_cnt =[0:4-1])
-				{
-					translate([-20,+(n_cnt-1.5)*gd_18650,t_base])
-					battery_18650(ix_sideway = 0,in_invert_poles=false );
-				}
-			}
+			//---------------------------------------------------------------------
+			//	SERVO WHEEL
+			//---------------------------------------------------------------------
 
-			if (i_x_show_servo == true)
-			{
-				//---------------------------------------------------------------------
-				//	SERVO WHEEL
-				//---------------------------------------------------------------------
+			//Right Wheel
+			translate
+			([
+				l_wheel,
+				-w_wheel,
+				i_t_base
+			])
+			rotate([0,0,90])
+			servo_holder
+			(
+				//Height of the servo from floor of pillar
+				i_ho_servo = h_floor_servo,
+				//Wheel
+				i_d_wheel = d_wheel,
+				i_t_wheel = t_wheel,
+				//Visualize components
+				i_x_right = true,
+				i_x_show_servo = i_x_show_servo,
+				i_x_show_wheel = i_x_show_servo
+			);
 
-				//Right Wheel
-				translate
-				([
-					l_wheel,
-					-w_wheel,
-					i_t_base
-				])
-				rotate([0,0,90])
-				servo_holder
-				(
-					//Height of the servo from floor of pillar
-					i_ho_servo = h_floor_servo,
-					//Wheel
-					i_d_wheel = d_wheel,
-					i_t_wheel = t_wheel,
-					//Visualize components
-					i_x_right = true,
-					i_x_show_servo = i_x_show_servo,
-					i_x_show_wheel = i_x_show_servo
-				);
-
-				//Left Wheel
-				translate
-				([
-					l_wheel,
-					+w_wheel,
-					i_t_base
-				])
-				rotate([0,0,-90])
-				servo_holder
-				(
-					//Height of the servo from floor of pillar
-					i_ho_servo = h_floor_servo,
-					//Wheel
-					i_d_wheel = d_wheel,
-					i_t_wheel = t_wheel,
-					//Visualize components
-					i_x_right = false,
-					i_x_show_servo = i_x_show_servo,
-					i_x_show_wheel = i_x_show_servo
-				);
-
-
-			}
+			//Left Wheel
+			translate
+			([
+				l_wheel,
+				+w_wheel,
+				i_t_base
+			])
+			rotate([0,0,-90])
+			servo_holder
+			(
+				//Height of the servo from floor of pillar
+				i_ho_servo = h_floor_servo,
+				//Wheel
+				i_d_wheel = d_wheel,
+				i_t_wheel = t_wheel,
+				//Visualize components
+				i_x_right = false,
+				i_x_show_servo = i_x_show_servo,
+				i_x_show_wheel = i_x_show_servo
+			);
 
 		}
 		//Extrude
 		union()
 		{
-
 			//---------------------------------------------------------------------
 			//	SERVO WHEEL HOLE
 			//---------------------------------------------------------------------
@@ -267,7 +295,26 @@ module industrious_resonance
 			translate([lo_pivot,0,0])
 			cylinder(h=i_t_base,d=d_pivot_cutout, $fn=80);
 			
+			//---------------------------------------------------------------------
+			// SBC BOLT HOLE
+			//---------------------------------------------------------------------
 
+			translate
+			([
+				lo_sbc-glm_pi3_hole,
+				0,
+				0
+			])
+			sbc_bolt
+			(
+				i_d_pillar = 2,
+				i_h_pillar = t_base+to_sbc,
+				i_d_hex = 6,
+				i_h_hex = 2,
+				//Interaxis between holes
+				i_li_sbc = gli_pi3_hole,
+				i_wi_sbc = gwi_pi3_hole,
+			);
 		}
 	}
 
