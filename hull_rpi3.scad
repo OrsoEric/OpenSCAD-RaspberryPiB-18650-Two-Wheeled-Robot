@@ -6,6 +6,8 @@ include <libs/shape_rounded_rectangle_tub.scad>
 
 include <libs/shape_hex_bolt.scad>
 
+include <libs/shape_arch.scad>
+
 //Model of the Rasperry Pi 3 and 5
 include <libs/raspberry_pi_3.scad>
 include <libs/sbc_support.scad>
@@ -29,7 +31,88 @@ include <pcb_regulator.scad>
 
 include <board_at324.scad>
 
+module board_arch_support
+(
+	i_w = 6,
+	i_h = 40,
+	i_t = 3,
 
+	i_h_keystone = 5,
+	i_t_arch = 6,
+
+	i_d_hole = 3+0.6,
+
+	i_li = 50,
+	i_wi = 100,
+)
+{
+	
+	l_arch = i_li+i_d_hole*2;
+	t_arch = i_t+i_d_hole;
+
+	translate([-i_li/2,0,0])
+	difference()
+	{
+		union()
+		{
+			translate
+			([
+				0,
+				0,
+				i_h-i_t/2
+			])
+			cube([l_arch,i_wi,i_t],center=true);
+
+			for (wo=[-i_wi/2,i_wi/2])
+			translate
+			([
+				0,
+				wo,
+				0
+			])
+			rotate([0,0,0])
+			shape_arch
+			(
+				//Outer dimensions
+				i_l=l_arch,
+				i_h=i_h,
+				i_w=i_w,
+				//Thickness of the pillar
+				i_t=t_arch,
+				//thickness of the keystone
+				i_h_keystone = i_h_keystone,
+				//precision of circles
+				i_e_precision = 0.1,
+			);
+
+
+		}
+
+		union()
+		{
+			//Drill the four holes in the arch to bolt to the base
+			for (lo_temp = [-i_li/2,i_li/2])
+			for (wo_temp = [-i_wi/2,i_wi/2])
+			translate([lo_temp,wo_temp,0 ])
+			shape_cylinder
+			(
+				i_d = i_d_hole,
+				i_h = i_h,
+				i_e = 0.01
+			);
+			//Drill four holes in the base to anchor the AT324
+			for (lo_temp = [-gc_li_at324_hole/2,gc_li_at324_hole/2])
+			for (wo_temp = [-gc_wi_at324_hole/2,gc_wi_at324_hole/2])
+			translate([wo_temp,lo_temp,0 ])
+			shape_cylinder
+			(
+				i_d = i_d_hole,
+				i_h = i_h,
+				i_e = 0.01
+			);
+		}
+	}
+}
 
 module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 (
@@ -42,6 +125,8 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	i_x_show_raspicam_holder = false,
 	i_x_show_raspicam = false,
 	i_x_show_regulator = false,
+	i_x_show_at324 = false,
+	i_x_show_at324_support = false,
 	//Thickness of the base
 	i_t_base = 3.5,
 	i_e_precision = 0.01,
@@ -157,9 +242,16 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	//	AT324 CONTROLLER
 	//------------------------------------------------------------------
 
-	lo_at324 = -50;
+	lo_at324 = -45;
 	wo_at324 = 0;
 	ho_at324 = 40;
+
+
+	lo_324_support = -20;
+
+	li_324_support = 40;
+	wi_324_support = c_r_base_minor*2-6;
+
 
 
 	//------------------------------------------------------------------
@@ -180,7 +272,7 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 				//Dimensions of the rectangle
 				i_l = c_r_base_major * 2,
 				i_w = c_r_base_minor * 2,
-				i_h = i_t_base,
+				i_h = t_base,
 				//Rounding of the corners in the XY direction
 				i_r_rounding = c_r_base_major * c_kr_rounding,
 				//Error by the approximation
@@ -195,12 +287,34 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 				i_l = c_r_base_major * 2,
 				i_w = c_r_base_minor * 2,
 				i_h = h_tub,
-				i_t_base = i_t_base,
-				i_t_wall = i_t_base,
+				i_t_base = t_base,
+				i_t_wall = t_base,
 				//Rounding of the corners in the XY direction
 				i_r_rounding = c_r_base_major * c_kr_rounding,
 				//Error by the approximation
 				i_e_precision = i_e_precision
+			);
+
+			//---------------------------------------------------------------------
+			//	SUPPORT FIN
+			//---------------------------------------------------------------------		
+			//place a dylinder so it touches the bottom
+
+			kl_fin = 0.7;
+
+			translate
+			([
+				//align to front edge and make space for the raspicam
+				c_r_base_major*(-1+kl_fin)-10,
+				0,
+				t_base
+			])
+			rotate([0,90,0])
+			shape_cylinder
+			(
+				i_d = t_base*2,
+				i_h = c_r_base_major*(2-kl_fin),
+				i_e = 0.01
 			);
 
 			//---------------------------------------------------------------------
@@ -388,17 +502,41 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 			);
 
 			//---------------------------------------------------------------------
-			//	CONTROLLER
+			//	AT324
 			//---------------------------------------------------------------------
 
+			if (i_x_show_at324 == true)
 			translate
 			([
 				lo_at324,
 				wo_at324,
-				ho_at324
+				t_base+ho_at324
 			])
-			rotate([0,0,180])
+			rotate([0,0,90])
 			at324_board();
+
+
+			//---------------------------------------------------------------------
+			//	AT324 SUPPORT
+			//---------------------------------------------------------------------
+
+			if (i_x_show_at324_support == true)
+			color("purple")
+			translate([lo_324_support,0,t_base])
+			board_arch_support
+			(
+				i_w = 6,
+				i_h = 37,
+				i_t = 3,
+
+				i_h_keystone = 5,
+				i_t_arch = 5,
+
+				i_d_hole = 3+0.6,
+
+				i_li = li_324_support,
+				i_wi = wi_324_support,
+			);
 
 			//---------------------------------------------------------------------
 			//	SWITCH FLANGE
@@ -425,7 +563,13 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 
 
 		}
-		//Extrude
+
+		//---------------------------------------------------------------------
+		//---------------------------------------------------------------------
+		//	E X T R U S I O N
+		//---------------------------------------------------------------------
+		//---------------------------------------------------------------------
+
 		union()
 		{
 			//---------------------------------------------------------------------
@@ -522,6 +666,30 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 			);
  
 			//---------------------------------------------------------------------
+			//	AT324 SUPPORT HOLES
+			//---------------------------------------------------------------------
+
+			translate
+			([
+				lo_324_support,
+				0,
+				0
+			])
+			sbc_bolt
+			(
+				i_d_pillar = 3+0.6,
+				i_h_pillar = t_base+35,
+				i_d_hex = 6+0.9,
+				i_h_hex = 2,
+				//Interaxis between holes
+				i_li_sbc = li_324_support,
+				i_wi_sbc = wi_324_support,
+				//Bolt angular offset, it may be convenient to orient the hex
+				i_or = 0,
+			);
+
+
+			//---------------------------------------------------------------------
 			//	RASPICAM BOLTS
 			//---------------------------------------------------------------------
 
@@ -598,6 +766,26 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 		i_x_raspicam = i_x_show_raspicam,
 	);
 
+	//---------------------------------------------------------------------
+	//	AT324 SUPPORT PRINT
+	//---------------------------------------------------------------------
+
+	color("purple")
+	translate([-150,0,0])
+	board_arch_support
+	(
+		i_w = 6,
+		i_h = 37,
+		i_t = 3,
+
+		i_h_keystone = 5,
+		i_t_arch = 5,
+
+		i_d_hole = 3+0.6,
+
+		i_li = li_324_support,
+		i_wi = wi_324_support,
+	);
 
 }
 
@@ -613,6 +801,8 @@ MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	i_x_show_raspicam_holder = false,
 	i_x_show_raspicam = false,
 	i_x_show_regulator = false,
+	i_x_show_at324 = false,
+	i_x_show_at324_support = false,
 );
 
 //if(false)
@@ -627,4 +817,6 @@ MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	i_x_show_raspicam_holder = true,
 	i_x_show_raspicam = true,
 	i_x_show_regulator = true,
+	i_x_show_at324 = true,
+	i_x_show_at324_support = true,
 );

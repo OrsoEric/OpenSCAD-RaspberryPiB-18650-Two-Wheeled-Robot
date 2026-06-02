@@ -50,7 +50,10 @@ module sbc_bolt
 	//Interaxis between holes
 	i_li_sbc = 50,
 	i_wi_sbc = 30,
-	i_e_precision = 0.01,
+	//Bolt angular offset, it may be convenient to orient the hex
+	i_or = 90,
+	//Precision
+	i_e_precision = 0.1,
 )
 {
 	for (lo_temp = [-i_li_sbc,0])
@@ -76,7 +79,7 @@ module sbc_bolt
 				wo_temp,
 				0
 			])
-			rotate([0,0,90])
+			rotate([0,0,i_or])
 			shape_hexagon
 			(
 				i_d = i_d_hex,

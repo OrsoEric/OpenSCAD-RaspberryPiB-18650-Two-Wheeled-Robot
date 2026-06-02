@@ -12,6 +12,8 @@ module shape_hex_bolt
 	//Hex Head
 	i_d_hex = 6,
 	i_h_hex = 2,
+	//Bolt angular offset, it may be convenient to orient the hex
+	i_or = 0,
 	//Precision
 	i_e_precision = 0.01,
 )
@@ -30,7 +32,7 @@ module shape_hex_bolt
 			i_h = i_h_bolt,
 			i_e = i_e_precision
 		);
-
+		rotate([0,0,i_or])
 		shape_hexagon
 		(
 			i_d = i_d_hex,
