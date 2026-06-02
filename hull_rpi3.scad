@@ -2,6 +2,7 @@
 include <libs/shape_ellypse.scad>
 include <libs/shape_rounded_rectangle.scad>
 include <libs/shape_flange.scad>
+include <libs/shape_rounded_rectangle_tub.scad>
 
 include <libs/shape_hex_bolt.scad>
 
@@ -46,18 +47,19 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	i_e_precision = 0.01,
 )
 {
-
-	//BASE parameters<
-	t_base = i_t_base;
 	e_precision = i_e_precision;
 
 	//------------------------------------------------------------------
 	// BASE
 	//------------------------------------------------------------------
 
+	t_base = i_t_base;
 	c_r_base_major = 100.0;
 	c_r_base_minor = 55.0;
 	c_kr_rounding = 0.4;
+	//Height of the Tub
+	h_tub = 30;
+
 
 	//------------------------------------------------------------------
 	//	PIVOT
@@ -151,6 +153,14 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	d_regulator_hole = 3.0+0.6;
 	d_regulator_hex_hole = 6.0+0.9;
 
+	//------------------------------------------------------------------
+	//	AT324 CONTROLLER
+	//------------------------------------------------------------------
+
+	lo_at324 = -50;
+	wo_at324 = 0;
+	ho_at324 = 40;
+
 
 	//------------------------------------------------------------------
 	//	GEOMETRY
@@ -164,6 +174,7 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 			//	BASE
 			//---------------------------------------------------------------------
 
+			//if(false)
 			shape_rounded_rectangle
 			(
 				//Dimensions of the rectangle
@@ -174,6 +185,22 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 				i_r_rounding = c_r_base_major * c_kr_rounding,
 				//Error by the approximation
 				i_n_error = e_precision
+			);
+
+			if(false)
+			color("#888888")
+			shape_rounded_rectangle_tub
+			(
+				//Dimensions of the rectangle
+				i_l = c_r_base_major * 2,
+				i_w = c_r_base_minor * 2,
+				i_h = h_tub,
+				i_t_base = i_t_base,
+				i_t_wall = i_t_base,
+				//Rounding of the corners in the XY direction
+				i_r_rounding = c_r_base_major * c_kr_rounding,
+				//Error by the approximation
+				i_e_precision = i_e_precision
 			);
 
 			//---------------------------------------------------------------------
@@ -310,7 +337,7 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 			color("gray")
 			rpi_holder
 			(
-				i_r_screw_holes = 3+0.5,
+				i_r_screw_holes = d_raspicam_bolt,
 				i_wo_flap_hole = g_wo_raspicam_flap_hole,
 				i_x_flaps = true,
 				i_x_raspicam = i_x_show_raspicam,
@@ -364,11 +391,14 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 			//	CONTROLLER
 			//---------------------------------------------------------------------
 
-			//at324_board();
-
-
-
-
+			translate
+			([
+				lo_at324,
+				wo_at324,
+				ho_at324
+			])
+			rotate([0,0,180])
+			at324_board();
 
 			//---------------------------------------------------------------------
 			//	SWITCH FLANGE
@@ -562,7 +592,7 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	translate([c_r_base_major+50,0,0])
 	rpi_holder
 	(
-		i_r_screw_holes = 3+0.5,
+		i_r_screw_holes = d_raspicam_bolt,
 		i_wo_flap_hole = g_wo_raspicam_flap_hole,
 		i_x_flaps = true,
 		i_x_raspicam = i_x_show_raspicam,
@@ -571,7 +601,7 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 
 }
 
-//if(false)
+if(false)
 MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 (
 	//SHOW ELEMENTS
@@ -585,7 +615,7 @@ MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	i_x_show_regulator = false,
 );
 
-if(false)
+//if(false)
 MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 (
 	//SHOW ELEMENTS
