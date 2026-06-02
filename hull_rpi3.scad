@@ -3,6 +3,8 @@ include <libs/shape_ellypse.scad>
 include <libs/shape_rounded_rectangle.scad>
 include <libs/shape_flange.scad>
 
+include <libs/shape_hex_bolt.scad>
+
 //Model of the Rasperry Pi 3 and 5
 include <libs/raspberry_pi_3.scad>
 include <libs/sbc_support.scad>
@@ -124,8 +126,9 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	//	RASPCIAM
 	//------------------------------------------------------------------
 
-	l_raspicam_bolt = 40;
+	l_raspicam_bolt = 26;
 	d_raspicam_bolt = 3.0+0.5;
+	d_raspicam_hex = 6.0+0.9;
 
 	g_wo_raspicam_flap_hole = 34.0;
 
@@ -492,6 +495,7 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 			//	RASPICAM BOLTS
 			//---------------------------------------------------------------------
 
+			//if (false)
 			for (wo=[g_wo_raspicam_flap_hole/2,-g_wo_raspicam_flap_hole/2])
 			{
 				translate
@@ -501,16 +505,23 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 					t_base+gn_rpicam_height/2+0.5
 				])
 				rotate([0,90,0])
-				shape_cylinder
+				shape_hex_bolt
 				(
-					i_h = l_raspicam_bolt,
-					i_d = d_raspicam_bolt,
-					i_e = 0.01
+					//Bolt
+					i_d_bolt = d_raspicam_bolt,
+					i_h_bolt = l_raspicam_bolt,
+					//Hex Head
+					i_d_hex = d_raspicam_hex,
+					i_h_hex = 4,
+					//Precision
+					i_e_precision = 0.01,
 				);
 			}
 
 		}
 	}
+
+
 
 	//---------------------------------------------------------------------
 	//	PIVOT
@@ -560,7 +571,7 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 
 }
 
-if(false)
+//if(false)
 MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 (
 	//SHOW ELEMENTS
@@ -571,8 +582,10 @@ MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	i_x_show_pivot = false,
 	i_x_show_raspicam_holder = false,
 	i_x_show_raspicam = false,
+	i_x_show_regulator = false,
 );
 
+if(false)
 MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 (
 	//SHOW ELEMENTS
@@ -583,4 +596,5 @@ MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	i_x_show_pivot = true,
 	i_x_show_raspicam_holder = true,
 	i_x_show_raspicam = true,
+	i_x_show_regulator = true,
 );
