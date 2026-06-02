@@ -13,16 +13,22 @@ include <libs/servo_holder.scad>
 include <libs/ball_holder.scad>
 
 //Model of the batteries
-include <battery-18650.scad>
+//include <battery-18650.scad>
 include <battery-18650-holder-1s1p.scad>
+//include <battery-18650-holder-1s2p.scad>
+
 
 include <raspicam_holder.scad>
 
 
+//Model of the regulator
+include <pcb_regulator.scad>
+
+include <board_at324.scad>
 
 
 
-module industrious_resonance
+module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 (
 	//SHOW ELEMENTS
 	i_x_show_rpi = false,
@@ -32,6 +38,7 @@ module industrious_resonance
 	i_x_show_pivot = false,
 	i_x_show_raspicam_holder = false,
 	i_x_show_raspicam = false,
+	i_x_show_regulator = false,
 	//Thickness of the base
 	i_t_base = 3.5,
 	i_e_precision = 0.01,
@@ -46,7 +53,7 @@ module industrious_resonance
 	// BASE
 	//------------------------------------------------------------------
 
-	c_r_base_major = 90.0;
+	c_r_base_major = 100.0;
 	c_r_base_minor = 55.0;
 	c_kr_rounding = 0.4;
 
@@ -55,7 +62,7 @@ module industrious_resonance
 	//------------------------------------------------------------------
 
 	//Offset of the pivot wheel
-	lo_pivot = -60;
+	lo_pivot = -70;
 	//This is a number to control anchor between pivot mechanism and its base
 	//I can't be bothered to work out the angles with the arcsin to make it work without this parameter
 	ho_pivot = 10;
@@ -75,7 +82,7 @@ module industrious_resonance
 	//------------------------------------------------------------------
 
 	//Position of the motors on the base
-	l_wheel = 40.0;
+	l_wheel = 45.0;
 	w_wheel = 40.0;
 	//Specs of the wheels
 	d_wheel = 68.0;
@@ -103,14 +110,14 @@ module industrious_resonance
 
 	//Holes for SBC bolts
 	d_sbc_bolt = 2.5 + 0.6;
-	d_sbc_bolt_nut = 5.0 + 0.6;
+	d_sbc_bolt_nut = 5.0 + 0.9;
 
 	//------------------------------------------------------------------
 	//	BATTERY
 	//------------------------------------------------------------------
 
-	lo_battery = -80;
-	wo_battery = 38;
+	lo_battery = -75;
+	wo_battery = 37;
 
 
 	//------------------------------------------------------------------
@@ -121,6 +128,26 @@ module industrious_resonance
 	d_raspicam_bolt = 3.0+0.5;
 
 	g_wo_raspicam_flap_hole = 34.0;
+
+	//------------------------------------------------------------------
+	//	PCB REGULATOR
+	//------------------------------------------------------------------
+
+	//Size
+	l_regulator = 55;
+	w_regulator = 30;
+	h_regulator = 15;
+	//Holes
+	li_regulator_hole = 50.0;
+	wi_regulator_hole = 25.0;
+	//Offset
+	lo_regulator = 12;
+	wo_regulator = 0;
+	ho_regulator = 10;
+	//Regulator Bolt
+	d_regulator_hole = 3.0+0.6;
+	d_regulator_hex_hole = 6.0+0.9;
+
 
 	//------------------------------------------------------------------
 	//	GEOMETRY
@@ -152,15 +179,16 @@ module industrious_resonance
 
 			translate
 			([
-				0*lo_battery,
+				lo_battery,
 				wo_battery,
 				t_base
 			])
-			rotate([0,0,-180])
+			//rotate([0,0,-180])
 			holder_18650_1s1p
 			(
 				ix_show_battery = i_x_show_battery,
-				ix_show_tab = i_x_show_battery_tab
+				ix_show_tab = i_x_show_battery_tab,
+				ix_battery_invert = false,
 			);
 
 			translate
@@ -173,7 +201,8 @@ module industrious_resonance
 			holder_18650_1s1p
 			(
 				ix_show_battery = i_x_show_battery,
-				ix_show_tab = i_x_show_battery_tab
+				ix_show_tab = i_x_show_battery_tab,
+				ix_battery_invert = true,
 			);
 
 			//---------------------------------------------------------------------
@@ -285,7 +314,61 @@ module industrious_resonance
 			);
 
 			//---------------------------------------------------------------------
-			//	FLANGE
+			//	PCB REGULATOR
+			//---------------------------------------------------------------------
+
+			if (i_x_show_regulator == true)
+			translate
+			([
+				lo_regulator,
+				wo_regulator,
+				t_base+ho_regulator
+			])
+			shape_pcb
+			(
+				//Size
+				i_l = l_regulator,
+				i_w = w_regulator,
+				i_h = h_regulator,
+				//Hole
+				i_d = 3.0 + 0.5,
+				i_li = li_regulator_hole,
+				i_wi = wi_regulator_hole,
+			);
+
+			//---------------------------------------------------------------------
+			//	REGULATOR PILLARS
+			//---------------------------------------------------------------------
+
+			translate
+			([
+				lo_regulator,
+				wo_regulator,
+				0
+			])
+			sbc_support_pillars
+			(
+				i_d_top = 6,
+				i_d_bot = 7,
+				i_h_pillar = t_base+ho_regulator,
+				i_h_vertical = 4,
+				//Interaxis between holes
+				i_li_sbc = li_regulator_hole,
+				i_wi_sbc = wi_regulator_hole
+			);
+
+			//---------------------------------------------------------------------
+			//	CONTROLLER
+			//---------------------------------------------------------------------
+
+			//at324_board();
+
+
+
+
+
+			//---------------------------------------------------------------------
+			//	SWITCH FLANGE
 			//---------------------------------------------------------------------
 			// meant for a power switch
 
@@ -305,6 +388,8 @@ module industrious_resonance
 				i_t_flange = 4,
 				i_e_precision = 0.01,
 			);
+
+
 
 		}
 		//Extrude
@@ -372,15 +457,37 @@ module industrious_resonance
 			])
 			sbc_bolt
 			(
-				i_d_pillar = 2,
+				i_d_pillar = d_sbc_bolt,
 				i_h_pillar = t_base+to_sbc,
-				i_d_hex = 6,
+				i_d_hex = d_sbc_bolt_nut,
 				i_h_hex = 2,
 				//Interaxis between holes
 				i_li_sbc = gli_pi3_hole,
 				i_wi_sbc = gwi_pi3_hole,
 			);
 
+
+			//---------------------------------------------------------------------
+			// REGULATOR HOLE
+			//---------------------------------------------------------------------
+
+			translate
+			([
+				lo_regulator,
+				wo_regulator,
+				0
+			])
+			sbc_bolt
+			(
+				i_d_pillar = d_regulator_hole,
+				i_h_pillar = t_base+to_sbc,
+				i_d_hex = d_regulator_hex_hole,
+				i_h_hex = 2,
+				//Interaxis between holes
+				i_li_sbc = li_regulator_hole,
+				i_wi_sbc = wi_regulator_hole,
+			);
+ 
 			//---------------------------------------------------------------------
 			//	RASPICAM BOLTS
 			//---------------------------------------------------------------------
@@ -453,4 +560,27 @@ module industrious_resonance
 
 }
 
-industrious_resonance();
+if(false)
+MOUSE_Multispectral_Observer_Upling_Streaming_Enology
+(
+	//SHOW ELEMENTS
+	i_x_show_rpi = false,
+	i_x_show_servo = false,
+	i_x_show_battery_tab = false,
+	i_x_show_battery = false,
+	i_x_show_pivot = false,
+	i_x_show_raspicam_holder = false,
+	i_x_show_raspicam = false,
+);
+
+MOUSE_Multispectral_Observer_Upling_Streaming_Enology
+(
+	//SHOW ELEMENTS
+	i_x_show_rpi = true,
+	i_x_show_servo = true,
+	i_x_show_battery_tab = true,
+	i_x_show_battery = true,
+	i_x_show_pivot = true,
+	i_x_show_raspicam_holder = true,
+	i_x_show_raspicam = true,
+);

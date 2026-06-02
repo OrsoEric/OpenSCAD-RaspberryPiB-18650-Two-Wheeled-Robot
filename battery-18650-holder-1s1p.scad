@@ -53,7 +53,9 @@ module holder_18650_1s1p
 	//Show the battery model
 	ix_show_battery = false,
 	//Show battery tab spring
-	ix_show_tab = false
+	ix_show_tab = false,
+
+	ix_battery_invert = false,
 )
 {
     nl_base = 50;
@@ -76,7 +78,7 @@ module holder_18650_1s1p
 			i_l_18650 = il_18650,
 			i_d_18650 = id_18650-0.5,
 			ix_sideway = 1,
-			in_invert_poles = true
+			in_invert_poles = ix_battery_invert
 		);
     }
     
