@@ -348,6 +348,7 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 			//rotate([0,0,-180])
 			holder_18650_1s1p
 			(
+				ilk_tab_spring_compression = 0.80,
 				ix_show_battery = i_x_show_battery,
 				ix_show_tab = i_x_show_battery_tab,
 				ix_battery_invert = false,
@@ -362,6 +363,7 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 			rotate([0,0,-0])
 			holder_18650_1s1p
 			(
+				ilk_tab_spring_compression = 0.80,
 				ix_show_battery = i_x_show_battery,
 				ix_show_tab = i_x_show_battery_tab,
 				ix_battery_invert = true,
@@ -563,12 +565,12 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 
 			translate
 			([
-				lo_pivot-4/2,
-				0,
+				lo_pivot-8,
+				4/2,
 				t_base+h_pivot_top
 			])
 			//Bring it up and facing X
-			rotate([90,0,90])
+			rotate([90,0,0])
 			shape_flange
 			(
 				i_h_flange = 8,
@@ -737,8 +739,6 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 		}
 	}
 
-
-
 	//---------------------------------------------------------------------
 	//	PIVOT
 	//---------------------------------------------------------------------
@@ -808,7 +808,8 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 
 }
 
-if(false)
+//Show only print
+//if(false)
 MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 (
 	//SHOW ELEMENTS
@@ -824,7 +825,8 @@ MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	i_x_show_at324_support = false,
 );
 
-//if(false)
+//Show everyting
+if(false)
 MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 (
 	//SHOW ELEMENTS
