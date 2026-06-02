@@ -55,6 +55,7 @@ module board_arch_support
 	{
 		union()
 		{
+			//Top surface
 			translate
 			([
 				0,
@@ -63,6 +64,7 @@ module board_arch_support
 			])
 			cube([l_arch,i_wi,i_t],center=true);
 
+			//Two support arches on the sides
 			for (wo=[-i_wi/2,i_wi/2])
 			translate
 			([
@@ -83,6 +85,22 @@ module board_arch_support
 				i_h_keystone = i_h_keystone,
 				//precision of circles
 				i_e_precision = 0.1,
+			);
+
+			//Longitudinal support fin
+			translate
+			([
+				//align to front edge and make space for the raspicam
+				0,
+				i_wi/2,
+				i_h-i_t
+			])
+			rotate([90,00,0])
+			shape_cylinder
+			(
+				i_d = i_t*2,
+				i_h = i_wi,
+				i_e = 0.01
 			);
 
 
@@ -657,7 +675,7 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 			sbc_bolt
 			(
 				i_d_pillar = d_regulator_hole,
-				i_h_pillar = t_base+to_sbc,
+				i_h_pillar = t_base+ho_regulator+h_regulator,
 				i_d_hex = d_regulator_hex_hole,
 				i_h_hex = 2,
 				//Interaxis between holes
@@ -771,7 +789,8 @@ module MOUSE_Multispectral_Observer_Upling_Streaming_Enology
 	//---------------------------------------------------------------------
 
 	color("purple")
-	translate([-150,0,0])
+	translate([-150,0,37])
+	rotate([0,180,0])
 	board_arch_support
 	(
 		i_w = 6,
